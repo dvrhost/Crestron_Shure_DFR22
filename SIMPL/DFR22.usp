@@ -1,0 +1,503 @@
+#CATEGORY "28" // System Control
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "DFR22 Control Module"
+#DEFINE_CONSTANT BUFFER_SIZE 4096
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+/*******************************************************************************************
+  Include Libraries
+*******************************************************************************************/
+#user_simplsharp_library "SIMPLDFR22Lib"
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+*******************************************************************************************/
+digital_input
+    InitializeTCP,
+    Connect,
+    Disconnect,
+    EnableDebug,
+	_skip_,
+	In1VolumeUp,
+	In1VolumeDown,
+	In1Mute,
+	In1Unmute,
+	In1MuteToggle,
+	In1VolumeSet,
+	_skip_,
+	In2VolumeUp,
+	In2VolumeDown,
+	In2Mute,
+	In2Unmute,
+	In2MuteToggle,
+	In2VolumeSet,
+	_skip_,
+    Out1VolumeUp,
+	Out1VolumeDown,
+	Out1Mute,
+	Out1Unmute,
+	Out1MuteToggle,
+	Out1VolumeSet,
+	_skip_,
+    Out2VolumeUp,
+	Out2VolumeDown,
+	Out2Mute,
+	Out2Unmute,
+	Out2MuteToggle,
+	Out2VolumeSet,
+	_skip_,
+	_skip_,
+	EnableMixPointIn1ToOut1,
+	DisableMixPointIn1ToOut1,
+	EnableMixPointIn1ToOut2,
+    DisableMixPointIn1ToOut2,
+	EnableMixPointIn2ToOut1,
+    DisableMixPointIn2ToOut1,
+	EnableMixPointIn2ToOut2,
+    DisableMixPointIn2ToOut2,
+	_skip_,
+	_skip_,
+	MixVolumeIn1ToOut1Up,
+    MixVolumeIn1ToOut1Down,
+    MixVolumeIn1ToOut1Set,
+	_skip_,
+    MixVolumeIn1ToOut2Up,
+    MixVolumeIn1ToOut2Down,
+    MixVolumeIn1ToOut2Set,
+	_skip_,
+	MixVolumeIn2ToOut1Up,
+	MixVolumeIn2ToOut1Down,
+    MixVolumeIn2ToOut1Set,
+	_skip_,
+	MixVolumeIn2ToOut2Up,
+    MixVolumeIn2ToOut2Down,
+    MixVolumeIn2ToOut2Set,
+	_skip_,
+	_skip_,
+	MixCh1VolumeUp,
+	MixCh1VolumeDown,
+	MixCh2VolumeUp,
+	MixCh2VolumeDown,
+	_skip_,
+	RequestSettings,	
+	_skip_;
+analog_input
+    Port,
+	_skip_,
+	DevID,
+	_skip_,
+	SetVolumeIn1,
+	SetVolumeIn2,
+	SetVolumeOut1,
+	SetVolumeOut2,
+	SetVolumeMixIn1ToOut1,
+	SetVolumeMixIn1ToOut2,
+	SetVolumeMixIn2ToOut1,
+	SetVolumeMixIn2ToOut2;
+string_input
+    IP[16],
+    RawTxData[BUFFER_SIZE],
+	_skip_;
+digital_output
+	InitializedFb,
+	_skip_,
+    ConnectedFb,
+    _skip_,
+	EnabledMixPointIn1ToOut1,
+	EnabledMixPointIn1ToOut2,
+	EnabledMixPointIn2ToOut1,
+	EnabledMixPointIn2ToOut2,
+	_skip_,
+	MuteIn1Enabled,
+	MuteIn2Enabled,
+	MuteOut1Enabled,
+	MuteOut2Enabled;
+analog_output
+    ConnectionStatusAnalogFb,
+	_skip_,
+	VolumeIn1,
+	VolumeIn2,
+	VolumeOut1,
+	VolumeOut2,
+	_skip_,
+	VolumeIn1ToOut1,
+	VolumeIn1ToOut2,
+	VolumeIn2ToOut1,
+	VolumeIn2ToOut2,
+    _skip_,
+    Mix1Volume,
+	Mix2Volume;
+
+string_output
+    ConnectionStatusSerialFb,
+    _skip_,
+	_skip_,
+	VolDbIn1,
+	VolDbIn2,
+	VolDbOut1,
+	VolDbOut2,
+	_skip_,
+	VolDbIn1ToOut1,
+	VolDbIn1ToOut2,
+	VolDbIn2ToOut1,
+	VolDbIn2ToOut2,
+	Mix1Vol,
+	Mix2Vol;
+
+DFR22Communication DSPCtl;
+
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+change RawTxData
+{
+ 	DSPCtl.RawDataToDFR22(RawTxData);
+}
+
+push InitializeTCP
+{
+	
+    DSPCtl.Initialize(IP, Port, BUFFER_SIZE,DevID);
+	
+}
+
+    
+push RequestSettings
+{
+ 	DSPCtl.DFRQueryStatus();
+}
+push Connect
+{
+    DSPCtl.Connect();    
+}
+
+push Disconnect
+{
+    DSPCtl.Disconnect();
+}
+
+push EnableDebug
+{
+    DSPCtl.EnableDebug();
+}
+
+release EnableDebug
+{
+    DSPCtl.DisableDebug();
+}
+
+  
+/**********************************************************************************************
+  Control Buttons
+**********************************************************************************************/
+ 
+//Chanel 1
+push In1VolumeUp
+{
+	DSPCtl.DFRVolumeUP(1);
+}
+push In1VolumeDown
+{
+	DSPCtl.DFRVolumeDown(1);
+}
+push In1Mute
+{
+	DSPCtl.DFRMuteChanel(1,1);
+}
+push In1Unmute
+{
+	DSPCtl.DFRMuteChanel(1,0);
+}
+push In1MuteToggle
+{
+     DSPCtl.DFRMuteToggle(1);
+}
+push In1VolumeSet
+{
+     DSPCtl.DFRVolChangeTo(1,SetVolumeIn1);
+}
+   
+//Chanel 2
+
+push In2VolumeUp
+{
+	DSPCtl.DFRVolumeUP(2);
+}
+push In2VolumeDown
+{
+	DSPCtl.DFRVolumeDown(2);
+}
+push In2Mute
+{
+	DSPCtl.DFRMuteChanel(2,1);
+}
+push In2Unmute
+{
+	DSPCtl.DFRMuteChanel(2,0);
+}
+push In2MuteToggle
+{
+     DSPCtl.DFRMuteToggle(2);
+}
+push In2VolumeSet
+{
+     DSPCtl.DFRVolChangeTo(2,SetVolumeIn2);
+}
+
+//Chanel 3
+
+push Out1VolumeUp
+{
+	DSPCtl.DFRVolumeUP(3);
+}
+push Out1VolumeDown
+{
+	DSPCtl.DFRVolumeDown(3);
+}
+push Out1Mute
+{
+	DSPCtl.DFRMuteChanel(3,1);
+}
+push Out1Unmute
+{
+	DSPCtl.DFRMuteChanel(3,0);
+}
+push Out1MuteToggle
+{
+     DSPCtl.DFRMuteToggle(3);
+}
+push Out1VolumeSet
+{
+     DSPCtl.DFRVolChangeTo(3,SetVolumeOut1);
+}
+//Chanel 4
+
+push Out2VolumeUp
+{
+	DSPCtl.DFRVolumeUP(4);
+}
+push Out2VolumeDown
+{
+	DSPCtl.DFRVolumeDown(4);
+}
+push Out2Mute
+{
+	DSPCtl.DFRMuteChanel(4,1);
+}
+push Out2Unmute
+{
+	DSPCtl.DFRMuteChanel(4,0);
+}
+push Out2MuteToggle
+{
+     DSPCtl.DFRMuteToggle(4);
+}
+push Out2VolumeSet
+{
+     DSPCtl.DFRVolChangeTo(4,SetVolumeOut2);
+}
+ 
+//mixpoint buttons
+push EnableMixPointIn1ToOut1
+{
+	DSPCtl.DFRSetMixPoint(1,1,1);
+}
+push DisableMixPointIn1ToOut1
+{
+	DSPCtl.DFRSetMixPoint(1,1,0);
+}
+push EnableMixPointIn1ToOut2
+{
+	DSPCtl.DFRSetMixPoint(1,2,1);
+}
+push DisableMixPointIn1ToOut2
+{
+	DSPCtl.DFRSetMixPoint(1,2,0);
+}
+push EnableMixPointIn2ToOut1
+{
+ 	DSPCtl.DFRSetMixPoint(2,1,1);
+}
+push DisableMixPointIn2ToOut1
+{
+	DSPCtl.DFRSetMixPoint(2,1,0);
+}
+push EnableMixPointIn2ToOut2
+{
+	DSPCtl.DFRSetMixPoint(2,2,1);
+}
+push DisableMixPointIn2ToOut2
+{
+	DSPCtl.DFRSetMixPoint(2,2,0);
+}
+
+//Volume Mix Point ch1
+
+push MixVolumeIn1ToOut1Up
+{
+     DSPCtl.DFRMixPointVolumeUp(1,1);
+}
+push MixVolumeIn1ToOut1Down
+{
+	DSPCtl.DFRMixPointVolumeDown(1,1);	
+}
+push MixVolumeIn1ToOut1Set
+{
+	DSPCtl.DFRMixVolumeChangeTo(SetVolumeMixIn1ToOut1,1,1);
+}
+
+//Volume Mix Point ch2
+
+push MixVolumeIn1ToOut2Up
+{
+     DSPCtl.DFRMixPointVolumeUp(1,2);
+}
+push MixVolumeIn1ToOut2Down
+{
+	DSPCtl.DFRMixPointVolumeDown(1,2);	
+}
+push MixVolumeIn1ToOut2Set
+{
+	DSPCtl.DFRMixVolumeChangeTo(SetVolumeMixIn1ToOut2,1,2);
+}
+
+//Volume Mix Point ch3
+
+push MixVolumeIn2ToOut1Up
+{
+     DSPCtl.DFRMixPointVolumeUp(2,1);
+}
+push MixVolumeIn2ToOut1Down
+{
+	DSPCtl.DFRMixPointVolumeDown(2,1);	
+}
+push MixVolumeIn2ToOut1Set
+{
+	DSPCtl.DFRMixVolumeChangeTo(SetVolumeMixIn2ToOut1,2,1);
+}
+   
+//Volume Mix Point ch4
+
+push MixVolumeIn2ToOut2Up
+{
+     DSPCtl.DFRMixPointVolumeUp(2,2);
+}
+push MixVolumeIn2ToOut2Down
+{
+	DSPCtl.DFRMixPointVolumeDown(2,2);	
+}
+push MixVolumeIn2ToOut2Set
+{
+	DSPCtl.DFRMixVolumeChangeTo(SetVolumeMixIn2ToOut2,2,2);
+}
+      
+//Mixer Volume control buttons
+push MixCh1VolumeUp
+{
+	DSPCtl.DFRMixVolumeUp(1);
+}
+push MixCh1VolumeDown
+{
+ 	DSPCtl.DFRMixVolumeDown(1);
+}
+push MixCh2VolumeUp
+{
+	DSPCtl.DFRMixVolumeUp(2);
+}
+push MixCh2VolumeDown
+{
+	DSPCtl.DFRMixVolumeDown(2);
+}
+/**********************************************************************************************
+  callback functions
+**********************************************************************************************/
+
+callback function ConnectionStatusCallbackFunction(string serialStatus, integer analogStatus)
+{
+    ConnectionStatusSerialFb = serialStatus;
+    ConnectionStatusAnalogFb = analogStatus;
+	if(analogStatus = 2)
+	{
+		ConnectedFb = 1;
+	}
+	else
+	{
+     	ConnectedFb = 0;
+	}		
+}
+
+callback function InitializedCallbackFunction(integer status)
+{
+    InitializedFb = status;
+	    
+}
+
+callback function InOutVolumeStatusFunction (INTEGER VolIn1 , INTEGER VolIn2 , INTEGER VolOut1 , INTEGER VolOut2 , INTEGER VolMix_1_1 , INTEGER VolMix_1_2 , INTEGER VolMix_2_1 , INTEGER VolMix_2_2 )
+{
+	VolumeIn1 = VolIn1;
+	VolumeIn2 = VolIn2;
+	VolumeOut1 = VolOut1;
+	VolumeOut2 = VolOut2;
+	VolumeIn1ToOut1 = VolMix_1_1;
+	VolumeIn1ToOut2 = VolMix_1_2;
+	VolumeIn2ToOut1 = VolMix_2_1;
+	VolumeIn2ToOut2 = VolMix_2_2;
+
+}
+ 
+callback function MuteStatusFunction (INTEGER MuteIn1 , INTEGER MuteIn2 , INTEGER MuteOut1 , INTEGER MuteOut2)
+{
+	MuteIn1Enabled = MuteIn1; 
+	MuteIn2Enabled = MuteIn2;
+	MuteOut1Enabled = MuteOut1;
+	MuteOut2Enabled = MuteOut2;
+}
+callback function MixVolumeStatusFunction (INTEGER VolMix1 , INTEGER VolMix2, string MixVol1Str, string MixVol2Str )
+{
+    Mix1Volume = VolMix1;
+	Mix2Volume = VolMix2;
+	Mix1Vol = MixVol1Str;
+	Mix2Vol = MixVol2Str;
+}
+
+callback function MixPointsStatusFunction (INTEGER MixIn1ToOut1 , INTEGER MixIn1ToOut2 , INTEGER MixIn2ToOut1 , INTEGER MixIn2ToOut2)
+{
+	EnabledMixPointIn1ToOut1 = MixIn1ToOut1;
+	EnabledMixPointIn1ToOut2 =  MixIn1ToOut2;
+	EnabledMixPointIn2ToOut1 = MixIn2ToOut1;
+	EnabledMixPointIn2ToOut2 = MixIn2ToOut2;
+
+
+}
+callback function InOutVolumeStringCallbackFunction (STRING VolIn1 , STRING VolIn2 , STRING VolOut1 , STRING VolOut2 , STRING VolMix_1_1 , STRING VolMix_1_2 , STRING VolMix_2_1 , STRING VolMix_2_2)
+{
+	VolDbIn1 = VolIn1;
+	VolDbIn2 = VolIn2;
+	VolDbOut1 = VolOut1;
+	VolDbOut2 = VolOut2;
+	VolDbIn1ToOut1 = VolMix_1_1;
+	VolDbIn1ToOut2 = VolMix_1_2;
+	VolDbIn2ToOut1 = VolMix_2_1;
+	VolDbIn2ToOut2 = VolMix_2_2;
+
+}
+
+/*******************************************************************************************
+  Main()
+*******************************************************************************************/
+
+Function Main()
+{
+    waitForInitializationComplete();
+    registerDelegate(DSPCtl, ConnectionStatus, ConnectionStatusCallbackFunction);
+    registerDelegate(DSPCtl, InitializedStatus, InitializedCallbackFunction);
+    registerDelegate(DSPCtl, DFRVolume, InOutVolumeStatusFunction);
+    registerDelegate(DSPCtl, DFRMute, MuteStatusFunction);
+	registerDelegate(DSPCtl, DFRMixVolume, MixVolumeStatusFunction);
+	registerDelegate(DSPCtl, DFRMixPoint, MixPointsStatusFunction);
+	registerDelegate(DSPCtl, DFRVolumeString, InOutVolumeStringCallbackFunction);
+
+}
